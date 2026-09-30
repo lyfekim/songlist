@@ -71,8 +71,8 @@ details[open] .c{background:var(--ink);border-color:var(--ink);color:#fff}
 #pp .pt{font-weight:800;font-size:13px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 #pp .po{color:var(--lt);font-size:13px;font-weight:700;text-decoration:none}
 #pp .pr{display:flex;gap:8px;align-items:center}
-#pp .pr button{border:0;border-radius:9px;padding:0;height:34px;min-width:42px;font-family:inherit;font-size:14px;font-weight:800;background:#ffffff22;color:#fff;cursor:pointer}
-#pp .pr .pc{padding:0 12px;font-size:13px;margin-left:auto}
+#pp .pr button{flex:1;min-width:0;border:0;border-radius:9px;padding:0;height:34px;font-family:inherit;font-size:14px;font-weight:800;background:#ffffff22;color:#fff;cursor:pointer}
+#pp .pr .pc{flex:none;width:36px;font-size:14px}
 #pp .pr button:disabled{opacity:.3}
 body.pon{padding-bottom:140px}
 </style>
@@ -94,10 +94,10 @@ const app=document.getElementById('app'),tabs=document.getElementById('tabs'),zo
 let seq=[],zp=0;
 let cd=0,yp=null,yq=[],yl=0,pd=0,pi=0;
 function ytReady(f){if(window.YT&&YT.Player)return f();yq.push(f);if(!yl){yl=1;window.onYouTubeIframeAPIReady=()=>{const q=yq;yq=[];q.forEach(g=>g())};const sc=document.createElement('script');sc.src='https://www.youtube.com/iframe_api';sc.onerror=()=>{const q=yq;yq=[];q.forEach(g=>g(1))};document.head.appendChild(sc)}}
-function panel(){let p=document.getElementById('pp');if(p)return p;p=document.createElement('div');p.id='pp';p.innerHTML='<div class="pf"><div id="yt"></div></div><div class="pi"><div class="pt"></div><div class="pr"><button class="pa" aria-label="이전 곡">◀</button><button class="pb" aria-label="다음 곡">▶</button><button class="pc">닫기 ✕</button></div><a class="po" target="_blank" rel="noopener">유튜브에서 열기 ↗</a></div>';document.body.appendChild(p);p.querySelector('.pa').onclick=()=>step(-1);p.querySelector('.pb').onclick=()=>step(1);p.querySelector('.pc').onclick=()=>{try{yp&&yp.stopVideo&&yp.stopVideo()}catch(e){}p.style.display='none';document.body.classList.remove('pon');if(!yp)p.querySelector('.pf').innerHTML='<div id="yt"></div>'};return p}
+function panel(){let p=document.getElementById('pp');if(p)return p;p=document.createElement('div');p.id='pp';p.innerHTML='<div class="pf"><div id="yt"></div></div><div class="pi"><div class="pt"></div><div class="pr"><button class="pa" aria-label="이전 곡">◀</button><button class="pb" aria-label="다음 곡">▶</button><button class="pc" aria-label="닫기">✕</button></div><a class="po" target="_blank" rel="noopener">유튜브에서 열기 ↗</a></div>';document.body.appendChild(p);p.querySelector('.pa').onclick=()=>step(-1);p.querySelector('.pb').onclick=()=>step(1);p.querySelector('.pc').onclick=()=>{try{yp&&yp.stopVideo&&yp.stopVideo()}catch(e){}p.style.display='none';document.body.classList.remove('pon');if(!yp)p.querySelector('.pf').innerHTML='<div id="yt"></div>'};return p}
 function playAt(d,i){const L=DAYS[d].songs.filter(x=>typeof x!=='string');if(i<0||i>=L.length)return;pd=d;pi=i;const s=L[i],p=panel();p.style.display='flex';document.body.classList.add('pon');p.querySelector('.pt').textContent=(i+1)+'/'+L.length+' · '+s[0].split(' + ')[0];p.querySelector('.po').href='https://youtu.be/'+s[3];p.querySelector('.pa').disabled=i===0;p.querySelector('.pb').disabled=i===L.length-1;
 ytReady(fail=>{if(fail||!window.YT){p.querySelector('.pf').innerHTML='<iframe src="https://www.youtube.com/embed/'+s[3]+'?autoplay=1&playsinline=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen title="유튜브 플레이어"></iframe>';return}
-if(yp&&yp.loadVideoById)yp.loadVideoById(s[3]);else yp=new YT.Player('yt',{videoId:s[3],width:'100%',height:'100%',playerVars:{autoplay:1,playsinline:1,rel:0},events:{onReady:e=>e.target.playVideo(),onStateChange:e=>{if(e.data===0)step(1)},onError:()=>{p.querySelector('.pt').textContent+=' (재생 불가 · 유튜브에서 열기)'}}})});
+if(yp&&yp.loadVideoById)yp.loadVideoById(s[3]);else yp=new YT.Player('yt',{videoId:s[3],width:'100%',height:'100%',playerVars:{autoplay:1,playsinline:1,rel:0},events:{onReady:e=>e.target.playVideo(),onError:()=>{p.querySelector('.pt').textContent+=' (재생 불가 · 유튜브에서 열기)'}}})});
 if(cd===d){const el=app.querySelectorAll('.list>details')[i];if(el&&!el.hidden&&!el.open)el.open=true}}
 function step(n){playAt(pd,pi+n)}
 function sib(e,d){let x=e;do x=d>0?x.nextElementSibling:x.previousElementSibling;while(x&&(x.tagName!=='DETAILS'||x.hidden));return x}
@@ -111,7 +111,7 @@ function show(i,first){
     if(typeof s==='string'){h+=`<div class="strip">${s}</div>`;return}
     n++;const o=seq.length;seq.push(...s[1]);h+=`<details data-n="${n-1}" data-o="${o}" data-p="${s[1].join(',')}"><summary><span class="tag">${String(n).padStart(2,'0')}</span><span class="t">${s[0].split(" + ").map((x,k)=>k?`<small>+ ${x}</small>`:x).join("")}</span>${s[3]?`<a class="pl" data-v="${s[3]}" href="https://youtu.be/${s[3]}" target="_blank" rel="noopener" aria-label="유튜브로 듣기">▶</a>`:''}<span class="c"><b class="o">악보 보기</b><b class="cl">접기</b></span></summary><div class="body"><p class="note">${s[2]?s[2]+" · ":""}악보를 누르면 크게 볼 수 있어요</p></div></details>`;
   });
-  app.innerHTML=h+'</div><p class="hint">▶ 를 누르면 화면 아래 플레이어로 들을 수 있어요 (끝나면 다음 곡 자동 재생) · 가로로 돌려서 보면 악보가 더 크게 보여요</p>';
+  app.innerHTML=h+'</div><p class="hint">▶ 를 누르면 화면 아래 플레이어로 들을 수 있어요 · 가로로 돌려서 보면 악보가 더 크게 보여요</p>';
   const q=app.querySelector('#q'),em=app.querySelector('#em');
   q.oninput=()=>{const v=q.value.replace(/\s/g,'').toLowerCase();let c=0;app.querySelectorAll('.list>details').forEach(x=>{const m=!v||x.querySelector('.t').textContent.replace(/\s/g,'').toLowerCase().includes(v);x.hidden=!m;if(m)c++;else x.open=false});app.querySelectorAll('.strip').forEach(x=>x.hidden=!!v);em.hidden=c>0};
   app.querySelectorAll('.pl').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();playAt(cd,+a.closest('details').dataset.n)}));
